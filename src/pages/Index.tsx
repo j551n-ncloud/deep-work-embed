@@ -1,6 +1,6 @@
 import { useSessionPersistence } from '@/hooks/useSessionPersistence';
-import { TaskInput } from '@/components/TaskInput';
-import { FocusSession } from '@/components/FocusSession';
+import { ClockoutTaskInput } from '@/components/ClockoutTaskInput';
+import { ClockoutFocusSession } from '@/components/ClockoutFocusSession';
 
 const Index = () => {
   const { session, createSession, updateSession, endSession } = useSessionPersistence();
@@ -11,7 +11,7 @@ const Index = () => {
 
   if (session?.isActive) {
     return (
-      <FocusSession 
+      <ClockoutFocusSession 
         session={session}
         onUpdateSession={updateSession}
         onEndSession={endSession}
@@ -20,7 +20,7 @@ const Index = () => {
   }
 
   return (
-    <TaskInput onStartSession={handleStartSession} />
+    <ClockoutTaskInput onStartSession={handleStartSession} />
   );
 };
 
