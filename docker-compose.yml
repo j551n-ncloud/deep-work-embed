@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  calendar-app:
+    build: .
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    
+  # Development service (optional)
+  calendar-app-dev:
+    build:
+      context: .
+      target: base
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0
+    environment:
+      - NODE_ENV=development
+    profiles:
+      - dev

@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 
+export type SessionType = 'pomodoro' | 'deep-work' | 'custom';
+export type PomodoroPhase = 'focus' | 'short-break' | 'long-break';
+
 export interface FocusSession {
   id: string;
   task: string;
@@ -10,6 +13,14 @@ export interface FocusSession {
   isActive: boolean;
   isPaused: boolean;
   timeRemaining: number; // in seconds
+  sessionType: SessionType;
+  // Pomodoro specific fields
+  pomodoroPhase?: PomodoroPhase;
+  pomodoroRound?: number; // Current round (1-4)
+  totalPomodoroRounds?: number; // Total rounds planned
+  focusDuration?: number; // Focus time in minutes (default 25)
+  shortBreakDuration?: number; // Short break in minutes (default 5)
+  longBreakDuration?: number; // Long break in minutes (default 15)
 }
 
 const SESSION_STORAGE_KEY = 'focus-session';
@@ -46,7 +57,18 @@ export function useSessionPersistence() {
     }
   }, [session]);
 
-  const createSession = (task: string, duration: number, youtubeUrl?: string) => {
+  const createSession = (
+    task: string, 
+    duration: number, 
+    youtubeUrl?: string, 
+    sessionType: SessionType = 'custom',
+    pomodoroOptions?: {
+      rounds?: number;
+      focusDuration?: number;
+      shortBreakDuration?: number;
+      longBreakDuration?: number;
+    }
+  ) => {
     const now = Date.now();
     const newSession: FocusSession = {
       id: crypto.randomUUID(),
@@ -58,6 +80,16 @@ export function useSessionPersistence() {
       isActive: true,
       isPaused: false,
       timeRemaining: duration * 60,
+      sessionType,
+      // Pomodoro defaults
+      ...(sessionType === 'pomodoro' && {
+        pomodoroPhase: 'focus' as PomodoroPhase,
+        pomodoroRound: 1,
+        totalPomodoroRounds: pomodoroOptions?.rounds || 4,
+        focusDuration: pomodoroOptions?.focusDuration || 25,
+        shortBreakDuration: pomodoroOptions?.shortBreakDuration || 5,
+        longBreakDuration: pomodoroOptions?.longBreakDuration || 15,
+      }),
     };
     setSession(newSession);
     return newSession;

@@ -10,7 +10,7 @@ import { Plus, MoreHorizontal, Calendar, CheckCircle2, Circle, FileText } from '
 export interface Task {
   id: string;
   title: string;
-  type: 'Code' | 'Market' | 'Design' | 'Personal';
+  type: 'Code' | 'Study' | 'Design';
   status: 'todo' | 'done';
   createdAt: Date;
   completedAt?: Date;
@@ -80,9 +80,8 @@ export function TaskSidebar({ isOpen, onClose }: TaskSidebarProps) {
   const getTypeColor = (type: Task['type']) => {
     switch (type) {
       case 'Code': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-      case 'Market': return 'bg-green-500/20 text-green-400 border-green-500/30';
+      case 'Study': return 'bg-green-500/20 text-green-400 border-green-500/30';
       case 'Design': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-      case 'Personal': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
     }
   };
 
@@ -118,10 +117,9 @@ export function TaskSidebar({ isOpen, onClose }: TaskSidebarProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-900 border-white/20">
-                  <SelectItem value="Code">Code</SelectItem>
-                  <SelectItem value="Market">Market</SelectItem>
-                  <SelectItem value="Design">Design</SelectItem>
-                  <SelectItem value="Personal">Personal</SelectItem>
+                  <SelectItem value="Code">📝 Code</SelectItem>
+                  <SelectItem value="Study">📊 Study</SelectItem>
+                  <SelectItem value="Design">🎨 Design</SelectItem>
                 </SelectContent>
               </Select>
               <Button onClick={addTask} size="sm" className="bg-primary hover:bg-primary/90">

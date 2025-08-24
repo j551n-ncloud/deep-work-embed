@@ -5,11 +5,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContributionCalendar } from './ContributionCalendar';
-import { Timer, Target, Youtube, Upload, Calendar, Plus, Lock } from 'lucide-react';
+import { SessionType } from '@/hooks/useSessionPersistence';
+import { Timer, Target, Youtube, Calendar, Lock, Brain, Coffee, Zap } from 'lucide-react';
 
 interface ClockoutTaskInputProps {
-  onStartSession: (task: string, duration: number, youtubeUrl?: string) => void;
+  onStartSession: (task: string, duration: number, youtubeUrl?: string, sessionType?: SessionType, pomodoroOptions?: any) => void;
 }
 
 export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
@@ -17,6 +19,13 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
   const [duration, setDuration] = useState(25);
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
+  const [sessionType, setSessionType] = useState<SessionType>('pomodoro');
+  const [pomodoroRounds, setPomodoroRounds] = useState(4);
+  const [focusDuration, setFocusDuration] = useState(25);
+  const [shortBreakDuration, setShortBreakDuration] = useState(5);
+  const [longBreakDuration, setLongBreakDuration] = useState(15);
+
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateYouTubeUrl = (url: string) => {
@@ -28,7 +37,14 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (task.trim() && duration > 0) {
-      onStartSession(task.trim(), duration, youtubeUrl || undefined);
+      const pomodoroOptions = sessionType === 'pomodoro' ? {
+        rounds: pomodoroRounds,
+        focusDuration,
+        shortBreakDuration,
+        longBreakDuration,
+      } : undefined;
+      
+      onStartSession(task.trim(), duration, youtubeUrl || undefined, sessionType, pomodoroOptions);
     }
   };
 
@@ -56,7 +72,7 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
   const isValid = task.trim().length > 0 && duration > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">
+    <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
@@ -65,15 +81,12 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between p-4">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" className="glass-panel border-white/20 text-white hover:bg-white/10">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Your First Project
-          </Button>
+        <div className="flex items-center gap-3">
+          {/* Empty space for balance */}
         </div>
 
-        <div className="flex items-center gap-4">
-          <Badge className="glass-panel border-white/20 text-white bg-white/5">
+        <div className="flex items-center gap-3">
+          <Badge className="bg-black/40 border-white/20 text-white backdrop-blur-sm px-3 py-1">
             <Lock className="h-4 w-4 mr-2" />
             Days Locked In: 0
           </Badge>
@@ -81,26 +94,16 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
           <Button
             variant="outline"
             onClick={() => setShowCalendar(true)}
-            className="glass-panel border-white/20 text-white hover:bg-white/10"
+            className="bg-black/40 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm"
           >
-            <Calendar className="h-4 w-4 mr-2" />
-            Calendar
-          </Button>
-          
-          <Button
-            variant="outline"
-            onClick={handleImport}
-            className="glass-panel border-white/20 text-white hover:bg-white/10"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Import
+            <Calendar className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="relative z-10 flex items-center justify-center min-h-[80vh] p-4">
-        <Card className="w-full max-w-2xl glass-panel border-white/20">
+        <Card className="w-full max-w-2xl bg-black/60 backdrop-blur-sm border-white/20">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Target className="h-8 w-8 text-primary" />
@@ -131,36 +134,180 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
                 />
               </div>
 
+              {/* Session Type Selection */}
+              <div className="space-y-4">
+                <Label className="text-base font-semibold flex items-center gap-2 text-white">
+                  <Timer className="h-4 w-4" />
+                  Session Type
+                </Label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <Card 
+                    className={`cursor-pointer transition-all duration-200 ${
+                      sessionType === 'pomodoro' 
+                        ? 'bg-red-500/20 border-red-500/50 shadow-lg shadow-red-500/20' 
+                        : 'bg-white/5 border-white/20 hover:bg-white/10'
+                    }`}
+                    onClick={() => setSessionType('pomodoro')}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <Brain className="h-8 w-8 mx-auto mb-2 text-red-400" />
+                      <h3 className="font-semibold text-white mb-1">Pomodoro</h3>
+                      <p className="text-xs text-white/70">25min focus + 5min breaks</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card 
+                    className={`cursor-pointer transition-all duration-200 ${
+                      sessionType === 'deep-work' 
+                        ? 'bg-blue-500/20 border-blue-500/50 shadow-lg shadow-blue-500/20' 
+                        : 'bg-white/5 border-white/20 hover:bg-white/10'
+                    }`}
+                    onClick={() => setSessionType('deep-work')}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <Zap className="h-8 w-8 mx-auto mb-2 text-blue-400" />
+                      <h3 className="font-semibold text-white mb-1">Deep Work</h3>
+                      <p className="text-xs text-white/70">90min uninterrupted focus</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card 
+                    className={`cursor-pointer transition-all duration-200 ${
+                      sessionType === 'custom' 
+                        ? 'bg-purple-500/20 border-purple-500/50 shadow-lg shadow-purple-500/20' 
+                        : 'bg-white/5 border-white/20 hover:bg-white/10'
+                    }`}
+                    onClick={() => setSessionType('custom')}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <Timer className="h-8 w-8 mx-auto mb-2 text-purple-400" />
+                      <h3 className="font-semibold text-white mb-1">Custom</h3>
+                      <p className="text-xs text-white/70">Set your own duration</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Pomodoro Settings */}
+                {sessionType === 'pomodoro' && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 space-y-4">
+                    <h4 className="font-semibold text-white flex items-center gap-2">
+                      <Coffee className="h-4 w-4" />
+                      Pomodoro Settings
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div>
+                        <Label className="text-sm text-white/80">Rounds</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="8"
+                          value={pomodoroRounds}
+                          onChange={(e) => setPomodoroRounds(parseInt(e.target.value))}
+                          className="bg-white/5 border-white/20 text-white text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm text-white/80">Focus (min)</Label>
+                        <Input
+                          type="number"
+                          min="15"
+                          max="60"
+                          value={focusDuration}
+                          onChange={(e) => setFocusDuration(parseInt(e.target.value))}
+                          className="bg-white/5 border-white/20 text-white text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm text-white/80">Short Break</Label>
+                        <Input
+                          type="number"
+                          min="3"
+                          max="15"
+                          value={shortBreakDuration}
+                          onChange={(e) => setShortBreakDuration(parseInt(e.target.value))}
+                          className="bg-white/5 border-white/20 text-white text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm text-white/80">Long Break</Label>
+                        <Input
+                          type="number"
+                          min="10"
+                          max="30"
+                          value={longBreakDuration}
+                          onChange={(e) => setLongBreakDuration(parseInt(e.target.value))}
+                          className="bg-white/5 border-white/20 text-white text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Duration and YouTube URL */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="duration" className="text-base font-semibold flex items-center gap-2 text-white">
-                    <Timer className="h-4 w-4" />
-                    Duration (minutes)
-                  </Label>
-                  <Input
-                    id="duration"
-                    type="number"
-                    min="1"
-                    max="180"
-                    value={duration}
-                    onChange={(e) => setDuration(parseInt(e.target.value))}
-                    className="text-base bg-white/5 border-white/20 text-white"
-                    required
-                  />
-                  <div className="flex gap-2 mt-2">
-                    {[15, 25, 45, 60, 90].map((preset) => (
-                      <Badge
-                        key={preset}
-                        variant={duration === preset ? "default" : "secondary"}
-                        className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors glass-panel border-white/20"
-                        onClick={() => setDuration(preset)}
-                      >
-                        {preset}m
-                      </Badge>
-                    ))}
+                {/* Duration - only show for custom sessions */}
+                {sessionType === 'custom' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="duration" className="text-base font-semibold flex items-center gap-2 text-white">
+                      <Timer className="h-4 w-4" />
+                      Duration (minutes)
+                    </Label>
+                    <Input
+                      id="duration"
+                      type="number"
+                      min="1"
+                      max="180"
+                      value={duration}
+                      onChange={(e) => setDuration(parseInt(e.target.value))}
+                      className="text-base bg-white/5 border-white/20 text-white"
+                      required
+                    />
+                    <div className="flex gap-2 mt-2">
+                      {[15, 25, 45, 60, 90].map((preset) => (
+                        <Badge
+                          key={preset}
+                          variant={duration === preset ? "default" : "secondary"}
+                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors glass-panel border-white/20"
+                          onClick={() => setDuration(preset)}
+                        >
+                          {preset}m
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* Auto-set duration for preset session types */}
+                {sessionType === 'deep-work' && (
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold flex items-center gap-2 text-white">
+                      <Timer className="h-4 w-4" />
+                      Duration
+                    </Label>
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                      <p className="text-white font-semibold">90 minutes</p>
+                      <p className="text-white/70 text-sm">Optimal for deep work sessions</p>
+                    </div>
+                  </div>
+                )}
+
+                {sessionType === 'pomodoro' && (
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold flex items-center gap-2 text-white">
+                      <Timer className="h-4 w-4" />
+                      Total Duration
+                    </Label>
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                      <p className="text-white font-semibold">
+                        {pomodoroRounds * focusDuration + (pomodoroRounds - 1) * shortBreakDuration + longBreakDuration} minutes
+                      </p>
+                      <p className="text-white/70 text-sm">
+                        {pomodoroRounds} rounds of {focusDuration}min focus + breaks
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="youtube" className="text-base font-semibold flex items-center gap-2 text-white">
@@ -205,7 +352,7 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
         className="hidden"
       />
 
-      {/* Calendar Modal */}
+      {/* Modals */}
       <ContributionCalendar isOpen={showCalendar} onClose={() => setShowCalendar(false)} />
     </div>
   );

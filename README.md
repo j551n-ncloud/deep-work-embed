@@ -1,8 +1,95 @@
-# Welcome to your Lovable project
+# Deep Work Focus Timer
 
-## Project info
+A minimalist solo focus timer application built with React, TypeScript, and Vite. Designed to help you maintain deep focus sessions with customizable timers, Pomodoro technique support, and ambient background music.
 
-**URL**: https://lovable.dev/projects/fd520767-4a28-49f3-a395-7e45012bb90f
+## Features
+
+### 🎯 Focus Sessions
+- **Custom Duration**: Set focus sessions from 15 minutes to 3 hours
+- **Pomodoro Timer**: Built-in 25/5 minute work/break cycles with customizable settings
+- **Deep Work Mode**: 90-minute uninterrupted focus sessions
+- **Task Tracking**: Define what you'll work on before starting
+
+### 🎵 Background Audio
+- **YouTube Integration**: Play focus music, white noise, or ambient sounds
+- **URL Validation**: Ensures only valid YouTube links are accepted
+- **Seamless Playback**: Audio continues throughout your focus session
+
+### 📊 Session Management
+- **Session Persistence**: Your active session survives page refreshes
+- **Progress Tracking**: Visual progress bar and time remaining
+- **Contribution Calendar**: Track your focus sessions over time
+- **Streak Counter**: Build and maintain focus streaks
+
+### 🎨 User Experience
+- **Dark Theme**: Easy on the eyes for long focus sessions
+- **Minimalist Design**: Clean interface that doesn't distract
+- **Responsive Layout**: Works on desktop, tablet, and mobile
+- **Glassmorphism UI**: Beautiful, modern interface design
+
+## Docker Setup
+
+### Production
+
+Build and run the production version:
+
+```bash
+# Build the Docker image
+npm run docker:build
+
+# Run the container
+npm run docker:run
+```
+
+Or use docker-compose:
+
+```bash
+# Run production version
+npm run docker:prod
+```
+
+The app will be available at http://localhost:3000
+
+### Development
+
+Run the development version with hot reload:
+
+```bash
+# Run development version
+npm run docker:dev
+```
+
+The development server will be available at http://localhost:5173
+
+### Manual Docker Commands
+
+```bash
+# Production build
+docker build -t calendar-app .
+docker run -p 3000:80 calendar-app
+
+# Development build
+docker build -f Dockerfile.dev -t calendar-app-dev .
+docker run -p 5173:5173 -v $(pwd):/app -v /app/node_modules calendar-app-dev
+```
+
+## Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+
 
 ## How can I edit this code?
 
@@ -10,7 +97,6 @@ There are several ways of editing your application.
 
 **Use Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/fd520767-4a28-49f3-a395-7e45012bb90f) and start prompting.
 
 Changes made via Lovable will be committed automatically to this repo.
 
@@ -60,14 +146,3 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/fd520767-4a28-49f3-a395-7e45012bb90f) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)

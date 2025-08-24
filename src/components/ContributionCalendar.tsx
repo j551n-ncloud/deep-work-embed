@@ -53,7 +53,8 @@ export function ContributionCalendar({ isOpen, onClose }: ContributionCalendarPr
     const weeks = [];
     const currentDate = new Date(firstSunday);
     
-    while (currentDate <= endDate) {
+    // Generate 53 weeks to ensure full year coverage
+    for (let weekIndex = 0; weekIndex < 53; weekIndex++) {
       const week = [];
       for (let day = 0; day < 7; day++) {
         const dateStr = getDateString(currentDate);
@@ -71,6 +72,11 @@ export function ContributionCalendar({ isOpen, onClose }: ContributionCalendarPr
         currentDate.setDate(currentDate.getDate() + 1);
       }
       weeks.push(week);
+      
+      // Stop if we've gone past the end of the year by more than a week
+      if (currentDate.getFullYear() > year && currentDate.getMonth() > 0) {
+        break;
+      }
     }
     
     return weeks;
@@ -90,105 +96,98 @@ export function ContributionCalendar({ isOpen, onClose }: ContributionCalendarPr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-6xl glass-panel border-white/20">
-        <CardHeader className="flex flex-row items-center justify-between">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="w-full max-w-6xl bg-black/90 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <CardTitle className="text-2xl text-white">Deep Work Contribution Calendar</CardTitle>
-            <p className="text-white/70 mt-1">
+            <h2 className="text-2xl font-bold text-white">Deep Work Contribution Calendar</h2>
+            <p className="text-white/60 mt-1">
               Your deep work hours throughout the year. Darker cells indicate more hours of focused work.
             </p>
           </div>
           <Button variant="ghost" onClick={onClose} className="text-white hover:bg-white/10">
             <X className="h-6 w-6" />
           </Button>
-        </CardHeader>
+        </div>
 
-        <CardContent className="space-y-6">
-          {/* Stats */}
-          <div className="flex gap-6 text-sm text-white/70">
-            <div>
-              <span className="text-primary font-semibold">{totalHours}</span> total hours
-            </div>
-            <div>
-              <span className="text-primary font-semibold">{activeDays}</span> active days
-            </div>
-            <div>
-              <span className="text-primary font-semibold">{getCurrentYear()}</span> progress
-            </div>
+        <div className="space-y-6">
+          {/* Month labels */}
+          <div className="flex justify-between text-xs text-white/60 px-12">
+            {months.map(month => (
+              <span key={month} className="text-center">{month}</span>
+            ))}
           </div>
 
           {/* Calendar Grid */}
-          <div className="space-y-2">
-            {/* Month labels */}
-            <div className="flex justify-between text-xs text-white/60 mb-2">
-              {months.map(month => (
-                <span key={month} className="w-8 text-center">{month}</span>
+          <div className="flex gap-2">
+            {/* Day labels */}
+            <div className="flex flex-col gap-1 text-xs text-white/60 justify-between py-1">
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                <div key={day} className="h-3 flex items-center">
+                  {day}
+                </div>
               ))}
             </div>
 
-            {/* Day labels + Calendar */}
-            <div className="flex gap-1">
-              {/* Day labels */}
-              <div className="flex flex-col gap-1 text-xs text-white/60 mr-2">
-                <div className="h-3"></div> {/* Spacer for month row */}
-                {days.map(day => (
-                  <div key={day} className="h-3 flex items-center text-right">
-                    {day}
-                  </div>
-                ))}
-              </div>
-
-              {/* Calendar grid */}
-              <div className="grid grid-cols-53 gap-1">
-                {weeks.map((week, weekIndex) => 
-                  week.map((day, dayIndex) => (
-                    <div
-                      key={`${weekIndex}-${dayIndex}`}
-                      className={`calendar-cell calendar-level-${day.level} ${
-                        !day.isCurrentYear ? 'opacity-30' : ''
-                      }`}
-                      title={`${day.date.toLocaleDateString()}: ${day.hours} hours`}
-                    />
-                  ))
-                )}
-              </div>
+            {/* Calendar grid */}
+            <div className="grid grid-cols-53 gap-1">
+              {weeks.map((week, weekIndex) => 
+                week.map((day, dayIndex) => (
+                  <div
+                    key={`${weekIndex}-${dayIndex}`}
+                    className={`w-3 h-3 rounded-sm ${
+                      day.level === 0 ? 'bg-gray-800' :
+                      day.level === 1 ? 'bg-blue-900' :
+                      day.level === 2 ? 'bg-blue-700' :
+                      day.level === 3 ? 'bg-blue-500' :
+                      'bg-blue-400'
+                    } ${!day.isCurrentYear ? 'opacity-30' : ''}`}
+                    title={`${day.date.toLocaleDateString()}: ${day.hours} hours`}
+                  />
+                ))
+              )}
             </div>
           </div>
 
           {/* Legend */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-center gap-8">
             <div className="flex items-center gap-2 text-xs text-white/60">
               <span>Less</span>
               <div className="flex gap-1">
-                {[0, 1, 2, 3, 4].map(level => (
-                  <div key={level} className={`calendar-cell calendar-level-${level}`} />
-                ))}
+                <div className="w-3 h-3 rounded-sm bg-gray-800" />
+                <div className="w-3 h-3 rounded-sm bg-blue-900" />
+                <div className="w-3 h-3 rounded-sm bg-blue-700" />
+                <div className="w-3 h-3 rounded-sm bg-blue-500" />
+                <div className="w-3 h-3 rounded-sm bg-blue-400" />
               </div>
               <span>More</span>
             </div>
 
-            <div className="flex items-center gap-4 text-xs text-white/60">
-              <div className="flex items-center gap-1">
-                <div className="calendar-cell calendar-level-1" />
-                <span>Very Light (0-1 hours)</span>
+            <div className="flex items-center gap-6 text-xs text-white/60">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-sm bg-blue-400" />
+                <span>Deep (4+ hours)</span>
               </div>
-              <div className="flex items-center gap-1">
-                <div className="calendar-cell calendar-level-2" />
-                <span>Light (1-2 hours)</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="calendar-cell calendar-level-3" />
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-sm bg-blue-700" />
                 <span>Medium (2-4 hours)</span>
               </div>
-              <div className="flex items-center gap-1">
-                <div className="calendar-cell calendar-level-4" />
-                <span>Deep (4+ hours)</span>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-sm bg-blue-900" />
+                <span>Light (1-2 hours)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-sm bg-blue-900" />
+                <span>Very Light (0-1 hours)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-sm bg-gray-800" />
+                <span>0 hours</span>
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
