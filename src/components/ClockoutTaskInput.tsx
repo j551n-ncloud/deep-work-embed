@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContributionCalendar } from './ContributionCalendar';
 import { SessionType } from '@/hooks/useSessionPersistence';
-import { Timer, Target, Youtube, Calendar, Lock, Brain, Coffee, Zap } from 'lucide-react';
+import { Timer, Target, Youtube, Calendar, Lock, Brain, Coffee, Zap, Briefcase } from 'lucide-react';
 
 interface ClockoutTaskInputProps {
   onStartSession: (task: string, duration: number, youtubeUrl?: string, sessionType?: SessionType, pomodoroOptions?: any) => void;
@@ -42,6 +42,11 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
         focusDuration,
         shortBreakDuration,
         longBreakDuration,
+      } : sessionType === 'work-day' ? {
+        rounds: 8,
+        focusDuration: 50,
+        shortBreakDuration: 10,
+        longBreakDuration: 60,
       } : undefined;
       
       onStartSession(task.trim(), duration, youtubeUrl || undefined, sessionType, pomodoroOptions);
@@ -140,7 +145,7 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
                   <Timer className="h-4 w-4" />
                   Session Type
                 </Label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                   <Card 
                     className={`cursor-pointer transition-all duration-200 ${
                       sessionType === 'pomodoro' 
@@ -168,6 +173,21 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
                       <Zap className="h-8 w-8 mx-auto mb-2 text-blue-400" />
                       <h3 className="font-semibold text-white mb-1">Deep Work</h3>
                       <p className="text-xs text-white/70">90min uninterrupted focus</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card 
+                    className={`cursor-pointer transition-all duration-200 ${
+                      sessionType === 'work-day' 
+                        ? 'bg-green-500/20 border-green-500/50 shadow-lg shadow-green-500/20' 
+                        : 'bg-white/5 border-white/20 hover:bg-white/10'
+                    }`}
+                    onClick={() => setSessionType('work-day')}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <Briefcase className="h-8 w-8 mx-auto mb-2 text-green-400" />
+                      <h3 className="font-semibold text-white mb-1">Work Day</h3>
+                      <p className="text-xs text-white/70">8hr day with 1hr breaks</p>
                     </CardContent>
                   </Card>
 
@@ -305,6 +325,26 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
                       <p className="text-white/70 text-sm">
                         {pomodoroRounds} rounds of {focusDuration}min focus + breaks
                       </p>
+                    </div>
+                  </div>
+                )}
+
+                {sessionType === 'work-day' && (
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold flex items-center gap-2 text-white">
+                      <Timer className="h-4 w-4" />
+                      Work Day Schedule
+                    </Label>
+                    <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                      <p className="text-white font-semibold">8 hours total</p>
+                      <p className="text-white/70 text-sm">
+                        8 rounds of 50min work + 10min breaks + 1hr lunch
+                      </p>
+                      <div className="mt-2 text-xs text-white/60">
+                        <div>• Work blocks: 50 minutes</div>
+                        <div>• Short breaks: 10 minutes</div>
+                        <div>• Lunch break: 60 minutes (after 4th round)</div>
+                      </div>
                     </div>
                   </div>
                 )}

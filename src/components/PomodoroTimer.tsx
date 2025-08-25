@@ -63,17 +63,21 @@ export function PomodoroTimer({
     const currentRound = session.pomodoroRound || 1;
     const totalRounds = session.totalPomodoroRounds || 4;
     const currentPhase = session.pomodoroPhase || 'focus';
+    const isWorkDay = session.sessionType === 'work-day';
 
     if (currentPhase === 'focus') {
       // After focus, determine break type
-      if (currentRound >= totalRounds) {
+      if (isWorkDay && currentRound === 4) {
+        // Work day: lunch break after 4th round
+        return { phase: 'lunch-break', duration: (session.longBreakDuration || 60) * 60 };
+      } else if (currentRound >= totalRounds) {
         return { phase: 'long-break', duration: (session.longBreakDuration || 15) * 60 };
       } else {
         return { phase: 'short-break', duration: (session.shortBreakDuration || 5) * 60 };
       }
     } else {
       // After any break, go to focus
-      const nextRound = currentPhase === 'long-break' ? 1 : currentRound + 1;
+      const nextRound = (currentPhase === 'long-break' && !isWorkDay) ? 1 : currentRound + 1;
       return { phase: 'focus', duration: (session.focusDuration || 25) * 60 };
     }
   };
@@ -109,13 +113,15 @@ export function PomodoroTimer({
     }
 
     const { phase: nextPhase, duration: nextDuration } = getNextPhase();
-    const nextRound = currentPhase === 'long-break' ? 1 : 
-                     currentPhase === 'short-break' ? currentRound + 1 : currentRound;
+    const isWorkDay = session.sessionType === 'work-day';
+    const nextRound = (currentPhase === 'long-break' && !isWorkDay) ? 1 : 
+                     (currentPhase === 'short-break' || currentPhase === 'lunch-break') ? currentRound + 1 : currentRound;
 
     // Check if we've completed all rounds
-    if (currentPhase === 'long-break') {
+    if ((currentPhase === 'long-break' && !isWorkDay) || (isWorkDay && currentRound >= totalRounds && currentPhase === 'short-break')) {
+      const sessionName = isWorkDay ? 'Work Day' : 'Pomodoro';
       toast({
-        title: "🏆 Pomodoro Session Complete!",
+        title: `🏆 ${sessionName} Session Complete!`,
         description: `Amazing! You've completed ${totalRounds} focus rounds.`,
         duration: 5000,
       });
@@ -162,6 +168,9 @@ export function PomodoroTimer({
         case 'long-break':
           resetDuration = (session.longBreakDuration || 15) * 60;
           break;
+        case 'lunch-break':
+          resetDuration = (session.longBreakDuration || 60) * 60;
+          break;
       }
       
       setTimeRemaining(resetDuration);
@@ -201,6 +210,13 @@ export function PomodoroTimer({
           title: 'Long Break',
           subtitle: 'Well deserved rest!',
           color: 'bg-blue-500/20 border-blue-500/30 text-blue-400'
+        };
+      case 'lunch-break':
+        return {
+          icon: <Coffee className="h-5 w-5" />,
+          title: 'Lunch Break',
+          subtitle: 'Time to refuel!',
+          color: 'bg-orange-500/20 border-orange-500/30 text-orange-400'
         };
     }
   };

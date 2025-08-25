@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-export type SessionType = 'pomodoro' | 'deep-work' | 'custom';
-export type PomodoroPhase = 'focus' | 'short-break' | 'long-break';
+export type SessionType = 'pomodoro' | 'deep-work' | 'work-day' | 'custom';
+export type PomodoroPhase = 'focus' | 'short-break' | 'long-break' | 'lunch-break';
 
 export interface FocusSession {
   id: string;
@@ -82,13 +82,13 @@ export function useSessionPersistence() {
       timeRemaining: duration * 60,
       sessionType,
       // Pomodoro defaults
-      ...(sessionType === 'pomodoro' && {
+      ...((sessionType === 'pomodoro' || sessionType === 'work-day') && {
         pomodoroPhase: 'focus' as PomodoroPhase,
         pomodoroRound: 1,
-        totalPomodoroRounds: pomodoroOptions?.rounds || 4,
-        focusDuration: pomodoroOptions?.focusDuration || 25,
-        shortBreakDuration: pomodoroOptions?.shortBreakDuration || 5,
-        longBreakDuration: pomodoroOptions?.longBreakDuration || 15,
+        totalPomodoroRounds: sessionType === 'work-day' ? 8 : (pomodoroOptions?.rounds || 4),
+        focusDuration: sessionType === 'work-day' ? 50 : (pomodoroOptions?.focusDuration || 25),
+        shortBreakDuration: sessionType === 'work-day' ? 10 : (pomodoroOptions?.shortBreakDuration || 5),
+        longBreakDuration: sessionType === 'work-day' ? 60 : (pomodoroOptions?.longBreakDuration || 15),
       }),
     };
     setSession(newSession);
