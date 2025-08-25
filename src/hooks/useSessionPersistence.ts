@@ -58,9 +58,9 @@ export function useSessionPersistence() {
   }, [session]);
 
   const createSession = (
-    task: string, 
-    duration: number, 
-    youtubeUrl?: string, 
+    task: string,
+    duration: number,
+    youtubeUrl?: string,
     sessionType: SessionType = 'custom',
     pomodoroOptions?: {
       rounds?: number;

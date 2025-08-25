@@ -25,6 +25,23 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
   const [shortBreakDuration, setShortBreakDuration] = useState(5);
   const [longBreakDuration, setLongBreakDuration] = useState(15);
 
+  // Update durations when session type changes
+  const handleSessionTypeChange = (newSessionType: SessionType) => {
+    setSessionType(newSessionType);
+    
+    if (newSessionType === 'work-day') {
+      setFocusDuration(50);
+      setShortBreakDuration(10);
+      setLongBreakDuration(60);
+      setPomodoroRounds(8);
+    } else if (newSessionType === 'pomodoro') {
+      setFocusDuration(25);
+      setShortBreakDuration(5);
+      setLongBreakDuration(15);
+      setPomodoroRounds(4);
+    }
+  };
+
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -152,7 +169,7 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
                         ? 'bg-red-500/20 border-red-500/50 shadow-lg shadow-red-500/20' 
                         : 'bg-white/5 border-white/20 hover:bg-white/10'
                     }`}
-                    onClick={() => setSessionType('pomodoro')}
+                    onClick={() => handleSessionTypeChange('pomodoro')}
                   >
                     <CardContent className="p-4 text-center">
                       <Brain className="h-8 w-8 mx-auto mb-2 text-red-400" />
@@ -167,7 +184,7 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
                         ? 'bg-blue-500/20 border-blue-500/50 shadow-lg shadow-blue-500/20' 
                         : 'bg-white/5 border-white/20 hover:bg-white/10'
                     }`}
-                    onClick={() => setSessionType('deep-work')}
+                    onClick={() => handleSessionTypeChange('deep-work')}
                   >
                     <CardContent className="p-4 text-center">
                       <Zap className="h-8 w-8 mx-auto mb-2 text-blue-400" />
@@ -182,7 +199,7 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
                         ? 'bg-green-500/20 border-green-500/50 shadow-lg shadow-green-500/20' 
                         : 'bg-white/5 border-white/20 hover:bg-white/10'
                     }`}
-                    onClick={() => setSessionType('work-day')}
+                    onClick={() => handleSessionTypeChange('work-day')}
                   >
                     <CardContent className="p-4 text-center">
                       <Briefcase className="h-8 w-8 mx-auto mb-2 text-green-400" />
@@ -197,7 +214,7 @@ export function ClockoutTaskInput({ onStartSession }: ClockoutTaskInputProps) {
                         ? 'bg-purple-500/20 border-purple-500/50 shadow-lg shadow-purple-500/20' 
                         : 'bg-white/5 border-white/20 hover:bg-white/10'
                     }`}
-                    onClick={() => setSessionType('custom')}
+                    onClick={() => handleSessionTypeChange('custom')}
                   >
                     <CardContent className="p-4 text-center">
                       <Timer className="h-8 w-8 mx-auto mb-2 text-purple-400" />
